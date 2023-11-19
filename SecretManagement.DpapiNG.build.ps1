@@ -73,6 +73,24 @@ task CopyToRelease {
     }
     Copy-Item @copyParams
 
+    # Ensure the same values of the parent manifest are set to the child one.
+    $extManifestPath = [IO.Path]::Combine($ReleasePath, "$($ModuleName).Extension", "$($ModuleName).Extension.psd1")
+    $extManifest = Get-Content -LiteralPath $extManifestPath
+    $extManifest = $extManifest.Replace(
+        "ModuleVersion = ''",
+        "ModuleVersion = '$($Manifest.Version)'"
+    ).Replace(
+        "Author = ''",
+        "Author = '$($Manifest.Author)'"
+    ).Replace(
+        "CompanyName = ''",
+        "CompanyName = '$($Manifest.CompanyName)'"
+    ).Replace(
+        "Copyright = ''",
+        "Copyright = '$($Manifest.Copyright)'"
+    )
+    Set-Content -LiteralPath $extManifestPath -Value $extManifest
+
     foreach ($framework in $TargetFrameworks) {
         $buildFolder = [IO.Path]::Combine($CSharpPath, 'bin', $Configuration, $framework, 'publish')
         $binFolder = [IO.Path]::Combine($ReleasePath, "$($ModuleName).Extension", 'bin', $framework, $_.Name)

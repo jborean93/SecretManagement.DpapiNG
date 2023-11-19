@@ -10,10 +10,10 @@
             "request": "launch",
             "program": "pwsh",
             "args": [
-                //"-NoExit",
+                "-NoExit",
                 "-NoProfile",
-                //"-Command",
-                //"Import-Module ./output/SecretManagement.DpapiNG"
+                "-Command",
+                "Import-Module ./output/SecretManagement.DpapiNG"
             ],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,

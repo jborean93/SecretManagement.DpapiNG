@@ -2,18 +2,22 @@
 # MIT License (see LICENSE or https://opensource.org/licenses/MIT)
 
 $importModule = Get-Command -Name Import-Module -Module Microsoft.PowerShell.Core
-# $moduleName = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
-$moduleName = "SecretManagement.DpapiNG"
+
+# Get the name of the module without .Extension
+$currentModuleName = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
+$moduleName = $currentModuleName.Substring(0, $currentModuleName.Length - 10)
 
 if ($PSVersionTable.PSVersion.Major -eq 5) {
     # PowerShell 5.1 has no concept of an Assembly Load Context so it will
     # just load the module assembly directly.
 
-    if (-not ('SecretManagement.DpapiNG.Module.GetSecretCommand' -as [type])) {
-        &$importModule ([IO.Path]::Combine($PSScriptRoot, 'bin', 'net472', "$moduleName.Module.dll")) -ErrorAction Stop
+    $innerMod = if ('SecretManagement.DpapiNG.Module.GetSecretCommand' -as [type]) {
+        $modAssembly = [SecretManagement.DpapiNG.Module.GetSecretCommand].Assembly
+        &$importModule -Assembly $modAssembly -Force -PassThru
     }
     else {
-        &$importModule -Force -Assembly ([SecretManagement.DpapiNG.Module.GetSecretCommand].Assembly)
+        $modPath = [System.IO.Path]::Combine($PSScriptRoot, 'bin', 'net472', "$moduleName.Module.dll")
+        &$importModule -Name $modPath -ErrorAction Stop -PassThru
     }
 }
 else {
@@ -21,35 +25,23 @@ else {
     # an ALC for the moulde and any dependencies of that module to be loaded in
     # that ALC.
 
-    if (-not ('SecretManagement.DpapiNG.Module.GetSecretCommand' -as [type])) {
-        &$importModule ([IO.Path]::Combine($PSScriptRoot, 'bin', 'net6.0', "$moduleName.Module.dll")) -ErrorAction Stop
-    }
-    else {
-        &$importModule -Force -Assembly ([SecretManagement.DpapiNG.Module.GetSecretCommand].Assembly)
+    if (-not ('SecretManagement.DpapiNG.LoadContext' -as [type])) {
+        Add-Type -Path ([System.IO.Path]::Combine($PSScriptRoot, 'bin', 'net6.0', "$moduleName.dll"))
     }
 
-    # $isReload = $true
-    # if (-not ('SecretManagement.DpapiNG.LoadContext' -as [type])) {
-    #     $isReload = $false
-    #     Add-Type -Path ([System.IO.Path]::Combine($PSScriptRoot, 'bin', 'net6.0', "$moduleName.dll"))
-    # }
+    $mainModule = [SecretManagement.DpapiNG.LoadContext]::Initialize()
+    $innerMod = &$importModule -Assembly $mainModule -Force -PassThru
+}
 
-    # $mainModule = [SecretManagement.DpapiNG.LoadContext]::Initialize()
-    # &$importModule -Force -Assembly $mainModule
-
-    # if ($isReload) {
-    #     # Bug in pwsh, Import-Module in an assembly will pick up a cached instance
-    #     # and not call the same path to set the nested module's cmdlets to the
-    #     # current module scope.
-    #     # https://github.com/PowerShell/PowerShell/issues/20710
-    #     $addExportedCmdlet = [System.Management.Automation.PSModuleInfo].GetMethod(
-    #         'AddExportedCmdlet',
-    #         [System.Reflection.BindingFlags]'Instance, NonPublic'
-    #     )
-    #     foreach ($cmd in $alcModule.ExportedCommands.Values) {
-    #         $addExportedCmdlet.Invoke($ExecutionContext.SessionState.Module, @(, $cmd))
-    #     }
-    # }
+# The way SecretManagement runs doesn't like that the needed functions are part
+# of an nested module of this one. This is a hack to ensure it's exposed here
+# properly.
+$addExportedCmdlet = [System.Management.Automation.PSModuleInfo].GetMethod(
+    'AddExportedCmdlet',
+    [System.Reflection.BindingFlags]'Instance, NonPublic'
+)
+foreach ($cmd in $innerMod.ExportedCommands.Values) {
+    $addExportedCmdlet.Invoke($ExecutionContext.SessionState.Module, @(, $cmd))
 }
 
 # Use this for testing that the dlls are loaded correctly and outside the Default ALC.

@@ -9,10 +9,6 @@
 #
 
 @{
-
-    # Script module or binary module file associated with this manifest.
-    RootModule = 'SecretManagement.DpapiNG.psm1'
-
     # Version number of this module.
     ModuleVersion = '0.1.0'
 
