@@ -15,6 +15,7 @@
         'Get-SecretInfo'
         'Remove-Secret'
         'Set-Secret'
+        'Set-SecretInfo'
         'Test-SecretVault'
     )
     VariablesToExport = @()

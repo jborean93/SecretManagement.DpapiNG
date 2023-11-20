@@ -40,7 +40,7 @@ $addExportedCmdlet = [System.Management.Automation.PSModuleInfo].GetMethod(
     'AddExportedCmdlet',
     [System.Reflection.BindingFlags]'Instance, NonPublic'
 )
-foreach ($cmd in $innerMod.ExportedCommands.Values) {
+foreach ($cmd in $innerMod.ExportedCmdlets.Values) {
     $addExportedCmdlet.Invoke($ExecutionContext.SessionState.Module, @(, $cmd))
 }
 

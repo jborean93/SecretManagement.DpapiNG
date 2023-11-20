@@ -95,4 +95,5 @@ internal class Secret
     public string Name { get; set; } = "";
     public byte[] Value { get; set; } = Array.Empty<byte>();
     public SecretType SecretType { get; set; } = SecretType.Unknown;
+    public string Metadata { get; set; } = "";
 }

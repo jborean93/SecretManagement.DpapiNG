@@ -4,7 +4,6 @@ using SecretManagement.DpapiNG.Native;
 using System;
 using System.Collections;
 using System.Management.Automation;
-using System.Net;
 using System.Security;
 using System.Text;
 
@@ -22,11 +21,14 @@ public sealed class SetSecretCommand : DpapiNGSecretBase
     [Parameter]
     public string VaultName { get; set; } = "";
 
+    [Parameter]
+    public Hashtable Metadata { get; set; } = new();
+
     internal override void ProcessVault(ILiteCollection<Secret> secrets)
     {
         Secret? existingSecret = secrets.FindOne(x => x.Name == Name);
 
-        string protectionDescriptor = GetProtectionDescriptor();
+        string metadata = ProcessMetadata(out string protectionDescriptor);
 
         using SafeNCryptProtectionDescriptor desc = NCrypt.NCryptCreateProtectionDescriptor(protectionDescriptor, 0);
 
@@ -49,6 +51,7 @@ public sealed class SetSecretCommand : DpapiNGSecretBase
         {
             existingSecret.Value = protectedData;
             existingSecret.SecretType = secretType;
+            existingSecret.Metadata = metadata;
             secrets.Update(existingSecret);
         }
         else
@@ -58,6 +61,7 @@ public sealed class SetSecretCommand : DpapiNGSecretBase
                 Name = Name,
                 Value = protectedData,
                 SecretType = secretType,
+                Metadata = metadata,
             };
             secrets.EnsureIndex(x => x.Name, true);
             secrets.Insert(secret);
@@ -79,37 +83,36 @@ public sealed class SetSecretCommand : DpapiNGSecretBase
         else if (Secret is SecureString ss)
         {
             secretType = SecretType.SecureString;
-            return Encoding.UTF8.GetBytes(new NetworkCredential("", ss).Password);
+            return SecretConverters.ConvertFromSecureString(ss);
         }
         else if (Secret is PSCredential ps)
         {
             secretType = SecretType.PSCredential;
-            Hashtable psco = new()
-            {
-                { "UserName", ps.UserName },
-                { "Password", ps.GetNetworkCredential().Password },
-            };
-            return Encoding.UTF8.GetBytes(PSSerializer.Serialize(psco));
+            return SecretConverters.ConvertFromPSCredential(ps);
         }
         else if (Secret is Hashtable ht)
         {
             secretType = SecretType.Hashtable;
-            return Encoding.UTF8.GetBytes(PSSerializer.Serialize(ht));
+            return SecretConverters.ConvertFromHashtable(ht);
         }
 
         secretType = SecretType.Unknown;
         return default;
     }
 
-    private string GetProtectionDescriptor()
+    private string ProcessMetadata(out string protectionDescriptor)
     {
-        if (AdditionalParameters.ContainsKey("ProtectionDescriptor"))
+        Hashtable localMetadata = (Hashtable)Metadata.Clone();
+        if (localMetadata.ContainsKey("ProtectionDescriptor"))
         {
-            return AdditionalParameters["ProtectionDescriptor"]?.ToString() ?? "";
+            protectionDescriptor = localMetadata["ProtectionDescriptor"]?.ToString() ?? "";
         }
         else
         {
-            return "LOCAL=user";
+            protectionDescriptor = "LOCAL=user";
+            localMetadata["ProtectionDescriptor"] = protectionDescriptor;
         }
+
+        return PSSerializer.Serialize(localMetadata);
     }
 }

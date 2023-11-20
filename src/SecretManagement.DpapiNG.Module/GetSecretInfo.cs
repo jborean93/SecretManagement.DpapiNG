@@ -1,5 +1,8 @@
 using LiteDB;
 using Microsoft.PowerShell.SecretManagement;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
 
@@ -20,7 +23,15 @@ public sealed class GetSecretInfoCommand : DpapiNGSecretBase
 
         foreach (Secret s in secrets.Find(Query.All("Name")).Where(x => pattern.IsMatch(x.Name.ToString())))
         {
-            SecretInformation si = new(s.Name, s.SecretType, VaultName);
+            Dictionary<string, object> metadata = new();
+            Hashtable rawMeta = (Hashtable)PSSerializer.Deserialize(s.Metadata);
+            foreach (DictionaryEntry kvp in rawMeta)
+            {
+                metadata[kvp.Key?.ToString() ?? ""] = kvp.Value!;
+            }
+
+            ReadOnlyDictionary<string, object> roMetadata = new(metadata);
+            SecretInformation si = new(s.Name, s.SecretType, VaultName, roMetadata);
             WriteObject(si);
         }
     }
