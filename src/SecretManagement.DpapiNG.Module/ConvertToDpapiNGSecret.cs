@@ -9,30 +9,52 @@ using System.Text;
 
 namespace SecretManagement.DpapiNG.Module;
 
+public sealed class StringOrProtectionDescriptor
+{
+    internal string Value { get; }
+
+    public StringOrProtectionDescriptor(ProtectionDescriptor value)
+    {
+        Value = value.ToString();
+    }
+
+    public StringOrProtectionDescriptor(string value)
+    {
+        Value = value;
+    }
+}
+
 [Cmdlet(VerbsData.ConvertTo, "DpapiNGSecret")]
 [OutputType(typeof(string))]
 public sealed class ConvertToDpapiNGCommand : PSCmdlet
 {
     [Parameter(
         Mandatory = true,
-        Position = 0
+        Position = 0,
+        ValueFromPipeline = true
     )]
     public StringSecureStringOrByteArray[] InputObject { get; set; } = Array.Empty<StringSecureStringOrByteArray>();
 
     [Parameter(
-        Mandatory = true,
         Position = 1
     )]
-    public string ProtectionDescriptor { get; set; } = "";
+    public StringOrProtectionDescriptor ProtectionDescriptor { get; set; } = new("LOCAL=user");
 
     [Parameter]
+    [EncodingTransformAttribute]
+#if CORE
+    [EncodingCompletionsAttribute]
+#else
+    [ArgumentCompleter(typeof(EncodingCompletionsAttribute))]
+#endif
     public Encoding? Encoding { get; set; }
 
     protected override void ProcessRecord()
     {
         Encoding enc = Encoding ?? Encoding.UTF8;
 
-        using SafeNCryptProtectionDescriptor desc = NCrypt.NCryptCreateProtectionDescriptor(ProtectionDescriptor, 0);
+        using SafeNCryptProtectionDescriptor desc = NCrypt.NCryptCreateProtectionDescriptor(
+            ProtectionDescriptor.Value, 0);
 
         foreach (StringSecureStringOrByteArray input in InputObject)
         {

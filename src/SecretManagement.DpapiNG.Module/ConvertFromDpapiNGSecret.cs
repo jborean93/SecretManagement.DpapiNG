@@ -14,7 +14,8 @@ public sealed class ConvertFromDpapiNGCommand : PSCmdlet
 {
     [Parameter(
         Mandatory = true,
-        Position = 0
+        Position = 0,
+        ValueFromPipeline = true
     )]
     public string[] InputObject { get; set; } = Array.Empty<string>();
 
@@ -39,6 +40,12 @@ public sealed class ConvertFromDpapiNGCommand : PSCmdlet
     [Parameter(
         ParameterSetName = "AsString"
     )]
+    [EncodingTransformAttribute]
+#if CORE
+    [EncodingCompletionsAttribute]
+#else
+    [ArgumentCompleter(typeof(EncodingCompletionsAttribute))]
+#endif
     public Encoding? Encoding { get; set; }
 
     protected override void ProcessRecord()
