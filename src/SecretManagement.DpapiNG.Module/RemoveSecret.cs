@@ -1,10 +1,10 @@
-using System.Collections;
+using LiteDB;
 using System.Management.Automation;
 
 namespace SecretManagement.DpapiNG.Module;
 
 [Cmdlet(VerbsCommon.Remove, "Secret")]
-public sealed class RemoveSecretCommand : PSCmdlet
+public sealed class RemoveSecretCommand : DpapiNGSecretBase
 {
     [Parameter]
     public string Name { get; set; } = "";
@@ -12,10 +12,12 @@ public sealed class RemoveSecretCommand : PSCmdlet
     [Parameter]
     public string VaultName { get; set; } = "";
 
-    [Parameter]
-    public Hashtable AdditionalParameters { get; set; } = new();
-
-    protected override void ProcessRecord()
+    internal override void ProcessVault(ILiteCollection<Secret> secrets)
     {
+        Secret? existingSecret = secrets.FindOne(x => x.Name == Name);
+        if (existingSecret != null)
+        {
+            secrets.Delete(existingSecret.Id);
+        }
     }
 }

@@ -89,6 +89,12 @@ task CopyToRelease {
         "Copyright = ''",
         "Copyright = '$($Manifest.Copyright)'"
     )
+    if ($Manifest.ExportedCmdlets.Count) {
+        $extManifest = $extManifest.Replace(
+            "CmdletsToExport = @(",
+            "CmdletsToExport = @(`n        '$($Manifest.ExportedCmdlets.Keys -join "'`n        '")'"
+        )
+    }
     Set-Content -LiteralPath $extManifestPath -Value $extManifest
 
     foreach ($framework in $TargetFrameworks) {

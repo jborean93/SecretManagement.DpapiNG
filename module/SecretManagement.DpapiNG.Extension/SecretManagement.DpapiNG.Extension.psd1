@@ -10,6 +10,7 @@
     Copyright = ''
     FunctionsToExport = @()
     CmdletsToExport = @(
+        # Used for SecretManagement
         'Get-Secret'
         'Get-SecretInfo'
         'Remove-Secret'
