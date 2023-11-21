@@ -3,7 +3,7 @@
 
 @{
     RootModule = 'SecretManagement.DpapiNG.Extension.psm1'
-    ModuleVersion = ''
+    ModuleVersion = '0.0.0.0'
     GUID = '167d7de5-1d14-4eb4-9316-5a5aedbb1f30'
     Author = ''
     CompanyName = ''

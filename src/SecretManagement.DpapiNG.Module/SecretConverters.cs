@@ -69,7 +69,7 @@ internal static class SecretConverters
     }
 
     public static Hashtable ConvertToHashtable(ReadOnlySpan<byte> data)
-        => (Hashtable)PSSerializer.Deserialize(ConvertToString(data));
+        => (Hashtable)((PSObject)PSSerializer.Deserialize(ConvertToString(data))).BaseObject;
 
     public static Span<byte> ConvertFromHashtable(Hashtable data)
         => Encoding.UTF8.GetBytes(PSSerializer.Serialize(data));

@@ -21,7 +21,9 @@ public abstract class DpapiNGSecretBase : PSCmdlet
             string.IsNullOrWhiteSpace(vaultPath)
         )
         {
-            string msg = "Registered SecretManagement.DpapiNG vault AdditionalParameters must contain a Path string.";
+            string msg =
+                "Invalid SecretManagement.DpapiNG vault registration: AdditionalParameters must contain a Path " +
+                "string.";
             ErrorRecord err = new(
                 new ArgumentException(msg),
                 "SecretManagement.DpapiNG.NoPathParams",
@@ -39,7 +41,7 @@ public abstract class DpapiNGSecretBase : PSCmdlet
         if (provider.ImplementingType != typeof(FileSystemProvider))
         {
             string msg =
-                $"Invalid SecretManagement.DpapiNG vault Path '{vaultPath}'. The Path must be a local file path " +
+                $"Invalid SecretManagement.DpapiNG vault registration: Path '{vaultPath}' must be a local file path " +
                 "to the local LiteDB database. If the DB does not exist at the path a new vault will be created.";
             ErrorRecord err = new(
                 new ArgumentException(msg),
@@ -55,8 +57,8 @@ public abstract class DpapiNGSecretBase : PSCmdlet
         if ((int)dbAttr == -1 && !Directory.Exists(Path.GetDirectoryName(providerPath)))
         {
             string msg =
-                $"Invalid SecretManagement.DpapiNG vault Path '{vaultPath}'. The Path must exist or the parent " +
-                "directory in the path must exist to create the new vault file";
+                $"Invalid SecretManagement.DpapiNG vault registration: Path '{vaultPath}' must exist or the parent " +
+                "directory in the path must exist to create the new vault file.";
             ErrorRecord err = new(
                 new ArgumentException(msg),
                 "SecretManagement.DpapiNG.PathMissingNoParent",
@@ -69,8 +71,8 @@ public abstract class DpapiNGSecretBase : PSCmdlet
         else if ((int)dbAttr != -1 && (dbAttr & FileAttributes.Directory) != 0)
         {
             string msg =
-                $"Invalid SecretManagement.DpapiNG vault Path '{vaultPath}'. The Path must be the path to a file " +
-                "not a directory";
+                $"Invalid SecretManagement.DpapiNG vault registration: Path '{vaultPath}' must be the path to a " +
+                "file not a directory.";
             ErrorRecord err = new(
                 new ArgumentException(msg),
                 "SecretManagement.DpapiNG.PathIsDirectory",

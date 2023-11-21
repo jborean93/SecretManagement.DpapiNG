@@ -24,7 +24,7 @@ public sealed class GetSecretInfoCommand : DpapiNGSecretBase
         foreach (Secret s in secrets.Find(Query.All("Name")).Where(x => pattern.IsMatch(x.Name.ToString())))
         {
             Dictionary<string, object> metadata = new();
-            Hashtable rawMeta = (Hashtable)PSSerializer.Deserialize(s.Metadata);
+            Hashtable rawMeta = (Hashtable)((PSObject)PSSerializer.Deserialize(s.Metadata)).BaseObject;
             foreach (DictionaryEntry kvp in rawMeta)
             {
                 metadata[kvp.Key?.ToString() ?? ""] = kvp.Value!;
