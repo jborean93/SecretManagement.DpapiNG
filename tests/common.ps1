@@ -34,3 +34,76 @@ try {
 catch {
     $global:SIDUnvailable = $true
 }
+
+if ($IsCoreCLR) {
+    Function global:New-X509Certificate {
+        [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2])]
+        [CmdletBinding()]
+        param (
+            [Parameter(Mandatory)]
+            [string]$Subject,
+
+            [Parameter()]
+            [System.Security.Cryptography.HashAlgorithmName]
+            $HashAlgorithm = "SHA256"
+        )
+
+        $key = [System.Security.Cryptography.RSA]::Create(4096)
+        $request = [System.Security.Cryptography.X509Certificates.CertificateRequest]::new(
+            "CN=$Subject",
+            $key,
+            $HashAlgorithm,
+            [System.Security.Cryptography.RSASignaturePadding]::Pkcs1)
+
+        $request.CertificateExtensions.Add(
+            [System.Security.Cryptography.X509Certificates.X509SubjectKeyIdentifierExtension]::new(
+                $request.PublicKey,
+                $false)
+        )
+
+        $notBefore = [DateTimeOffset]::UtcNow.AddDays(-1)
+        $notAfter = [DateTimeOffset]::UtcNow.AddDays(30)
+        $request.CreateSelfSigned($notBefore, $notAfter)
+    }
+}
+else {
+    Function global:New-X509Certificate {
+        [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2])]
+        [CmdletBinding()]
+        param (
+            [Parameter(Mandatory)]
+            [string]$Subject,
+
+            [Parameter()]
+            [System.Security.Cryptography.HashAlgorithmName]
+            $HashAlgorithm = "SHA256"
+        )
+
+        $certParams = @{
+            CertStoreLocation = 'Cert:\CurrentUser\My'
+            HashAlgorithm = $HashAlgorithm.ToString()
+            KeyAlgorithm = 'RSA'
+            KeyLength = 4096
+            Subject = $Subject
+        }
+        $cert = New-SelfSignedCertificate @certParams
+
+        # We want to remove the private key file by exporting the cert as a PFX
+        # and reimporting it without the persist key flag.
+        $certBytes = $cert.Export(
+            [System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx)
+
+        # New-SelfSignedCertificate stores the key in the store, we want to
+        # remove the cert and key
+        Remove-Item -LiteralPath "Cert:\CurrentUser\My\$($cert.Thumbprint)" -Force
+        $certKey = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey($cert)
+        $certKey.Key.Delete()
+
+        # EphemeralKeySet will ensure the key isn't persisted to the disk replicating
+        # the PS 7 New-X509Certificate cmdlet
+        [System.Security.Cryptography.X509Certificates.X509Certificate2]::new(
+            $certBytes,
+            '',
+            [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]'EphemeralKeySet, Exportable')
+    }
+}

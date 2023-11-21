@@ -14,8 +14,8 @@ Encrypts data as a DPAPI-NG secret.
 
 ### Local (Default)
 ```
-ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-Local <String>]
- [-Encoding <Encoding>] [<CommonParameters>]
+ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-Encoding <Encoding>]
+ [-Local <String>] [<CommonParameters>]
 ```
 
 ### ProtectionDescriptor
@@ -26,14 +26,26 @@ ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]>
 
 ### Sid
 ```
-ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-Sid <StringOrAccount>]
- [-Encoding <Encoding>] [<CommonParameters>]
+ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-Encoding <Encoding>]
+ -Sid <StringOrAccount> [<CommonParameters>]
 ```
 
 ### SidCurrent
 ```
-ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-CurrentSid] [-Encoding <Encoding>]
+ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-Encoding <Encoding>] [-CurrentSid]
  [<CommonParameters>]
+```
+
+### Certificate
+```
+ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-Encoding <Encoding>]
+ -Certificate <X509Certificate2> [<CommonParameters>]
+```
+
+### CertificateThumbprint
+```
+ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-Encoding <Encoding>]
+ -CertificateThumbprint <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -41,8 +53,9 @@ Encrypts the input data into a base64 encoded string.
 The encrypted data is protected using the protection descriptor specified.
 Use [ConvertFrom-DpapiNGSecret](./ConvertFrom-DpapiNGSecret.md) to decrypt the secret data back into a usable object.
 By default the secret will be protected with the `LOCAL=user` protection descriptor which only allows the current user on the current host the ability to decrypt the secret.
-The `-Sid` or `-CurrentSid` parameter can be used to specify a specific domain user/group or the current domain user the ability to decrypt the secret.
+The `-Sid` or `-CurrentSid` parameters can be used to specify a specific domain user/group or the current domain user the ability to decrypt the secret.
 The [New-DpapiNGDescriptor](./New-DpapiNGDescriptor.md) and [Add-DpapiNGDescriptor](./Add-DpapiNGDescriptor.md) to build a more complex protection descriptor used to protect the secret.
+The `-Certificate` or `-CertificateThumbprint` parameters can be used to specify a certificate that can encrypt and decrypt the secret using the certificate specified.
 
 ## EXAMPLES
 
@@ -89,6 +102,40 @@ It is also possible to provide a string to `-ProtectionDescriptor` if crafting i
 
 ## PARAMETERS
 
+### -Certificate
+The `X509Certificate2` to use when encrypting the data.
+The decryptor needs to have the associated private key of the certificate used to decrypt the value.
+This method will set the protection descriptor `CERTIFICATE=CertBlob:$certBase64String`.
+
+```yaml
+Type: X509Certificate2
+Parameter Sets: Certificate
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CertificateThumbprint
+The thumbprint for a certificate stored inside `Cert:\CurrentUser\My` to use for encryption.
+Only the public key needs to be present to encrypt the value but the decryption process requires the associated private key to be present.
+This method will set the protection descriptor `CERTIFICATE=HashID:$CertificateThumbprint`.
+
+```yaml
+Type: String
+Parameter Sets: CertificateThumbprint
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -CurrentSid
 Protects the secret with the current domain user's identity.
 The encrypted secret can be decrypted by this user on any other host in the domain.
@@ -101,7 +148,7 @@ Type: SwitchParameter
 Parameter Sets: SidCurrent
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -216,7 +263,7 @@ Type: StringOrAccount
 Parameter Sets: Sid
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False

@@ -15,23 +15,25 @@ public abstract class DpapiNGSecretBase : PSCmdlet
 
     protected override void ProcessRecord()
     {
+        string vaultPath;
         if (
-            !AdditionalParameters.ContainsKey("Path") ||
-            !(AdditionalParameters["Path"] is string vaultPath) ||
-            string.IsNullOrWhiteSpace(vaultPath)
+            AdditionalParameters.ContainsKey("Path") &&
+            AdditionalParameters["Path"] is string tempVaultPath &&
+            !string.IsNullOrWhiteSpace(tempVaultPath)
         )
         {
-            string msg =
-                "Invalid SecretManagement.DpapiNG vault registration: AdditionalParameters must contain a Path " +
-                "string.";
-            ErrorRecord err = new(
-                new ArgumentException(msg),
-                "SecretManagement.DpapiNG.NoPathParams",
-                ErrorCategory.InvalidArgument,
-                null
-            );
-            WriteError(err);
-            return;
+            vaultPath = tempVaultPath;
+        }
+        else
+        {
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string secretManagementDir = Path.Combine(localAppData, "SecretManagement.DpapiNG");
+            if (!Directory.Exists(secretManagementDir))
+            {
+                Directory.CreateDirectory(secretManagementDir);
+            }
+
+            vaultPath = Path.Combine(secretManagementDir, "default.vault");
         }
 
         string providerPath = SessionState.Path.GetUnresolvedProviderPathFromPSPath(

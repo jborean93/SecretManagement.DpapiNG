@@ -297,16 +297,26 @@ Describe "SecretManagement" {
         [string]$err | Should -Be "Failed to find SecretManagement.DpapiNG vault secret 'MySecret'. The secret must exist to set the metadata on. Use Set-Secret to create a secret with metadata instead."
     }
 
-    It "Fails if vault Path is not set" {
-        $name = 'TestVault'
-        Register-SecretVault -ModuleName $CurrentModule.Path -Name $name
+    It "Uses default vault path if none set" {
+        $name1 = 'TestVault1'
+        $name2 = 'TestVault2'
+        $secretName = 'DpapiNGTestSecret'
+
+        Register-SecretVault -ModuleName $CurrentModule.Path -Name $name1
+        Register-SecretVault -ModuleName $CurrentModule.Path -Name $name2
         try {
-            Test-SecretVault -Name $name -ErrorAction SilentlyContinue -ErrorVariable err
-            $err.Count | Should -Be 1
-            [string]$err | Should -Be "Invalid SecretManagement.DpapiNG vault registration: AdditionalParameters must contain a Path string."
+            Test-SecretVault -Name $name1 | Should -BeTrue
+            Test-SecretVault -Name $name2 | Should -BeTrue
+
+            Set-Secret -Name $secretName -Secret value -Vault $name1
+
+            Get-Secret -Name $secretName -AsPlainText -Vault $name1 | Should -Be value
+            Get-Secret -Name $secretName -AsPlainText -Vault $name2 | Should -Be value
         }
         finally {
-            Unregister-SecretVault -Name $name
+            Remove-Secret -Name $secretName -Vault $name1
+            Unregister-SecretVault -Name $name1
+            Unregister-SecretVault -Name $name2
         }
     }
 

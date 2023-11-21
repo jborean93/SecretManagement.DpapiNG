@@ -193,4 +193,116 @@ Describe "Convert*-DpapiNGSecret" {
             )
         }
     }
+
+    Context "Certificate tests" {
+        BeforeAll {
+            $cert = New-X509Certificate -Subject DPAPING-Test
+
+            $certWithPublicBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+            $certWithPrivateBytes = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx)
+            $certWithPublicOnly = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($certWithPublicBytes)
+        }
+
+        AfterAll {
+            $cert.Dispose()
+            $certWithPublicOnly.Dispose()
+        }
+
+        It "Fails with cert thumbprint not in user store" {
+            $actual = ConvertTo-DpapiNGSecret foo -CertificateThumbprint $cert.Thumbprint -ErrorAction SilentlyContinue -ErrorVariable err
+            $actual | Should -BeNullOrEmpty
+            $err.Count | Should -Be 1
+            [string]$err | Should -BeLike "Failed to encrypt data: * (*)"
+        }
+
+        It "Protects with CertificateThumbprint" {
+            $certWithPrivate = $myStore = $null
+            try {
+                $certWithPrivate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new(
+                    $certWithPrivateBytes,
+                    "",
+                    [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::UserKeySet)
+                $myStore = Get-Item Cert:\CurrentUser\My
+                $myStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+                $myStore.Add($certWithPrivate)
+
+                $actual = ConvertTo-DpapiNGSecret foo -CertificateThumbprint $certWithPublicOnly.Thumbprint
+
+                ConvertFrom-DpapiNGSecret $actual -AsString | Should -Be foo
+            }
+            finally {
+                if ($myStore) {
+                    $myStore.Remove($certWithPrivate)
+                    $myStore.Dispose()
+                }
+                if ($certWithPrivate) {
+                    $key = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey(
+                        $certWithPrivate)
+                    $key.Key.Delete()
+                    $certWithPrivate.Dispose()
+                }
+            }
+        }
+
+        It "Protects with Certificate object" {
+            $actual = ConvertTo-DpapiNGSecret foo -Certificate $certWithPublicOnly
+
+            $certWithPrivate = $myStore = $null
+            try {
+                $certWithPrivate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new(
+                    $certWithPrivateBytes,
+                    "",
+                    [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::UserKeySet)
+
+                $myStore = Get-Item Cert:\CurrentUser\My
+                $myStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+                $myStore.Add($certWithPrivate)
+
+                ConvertFrom-DpapiNGSecret $actual -AsString | Should -Be foo
+            }
+            finally {
+                if ($myStore) {
+                    $myStore.Remove($certWithPrivate)
+                    $myStore.Dispose()
+                }
+                if ($certWithPrivate) {
+                    $key = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey(
+                        $certWithPrivate)
+                    $key.Key.Delete()
+                    $certWithPrivate.Dispose()
+                }
+            }
+        }
+
+        It "Fails to decrypt Certificate without stored key" {
+            $actual = ConvertTo-DpapiNGSecret foo -Certificate $certWithPublicOnly
+
+            $actual = ConvertFrom-DpapiNGSecret $actual -AsString -ErrorAction SilentlyContinue -ErrorVariable err
+            $actual | Should -BeNullOrEmpty
+            $err.Count | Should -Be 1
+            [string]$err | Should -BeLike "Failed to decrypt data: * (*)"
+        }
+
+        It "Fails to decrypt Certificate with only public certificate" {
+            $actual = ConvertTo-DpapiNGSecret foo -Certificate $certWithPublicOnly
+
+            $myStore = $null
+            try {
+                $myStore = Get-Item Cert:\CurrentUser\My
+                $myStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+                $myStore.Add($certWithPublicOnly)
+
+                $actual = ConvertFrom-DpapiNGSecret $actual -AsString -ErrorAction SilentlyContinue -ErrorVariable err
+                $actual | Should -BeNullOrEmpty
+                $err.Count | Should -Be 1
+                [string]$err | Should -BeLike "Failed to decrypt data: * (*)"
+            }
+            finally {
+                if ($myStore) {
+                    $myStore.Remove($certWithPublicOnly)
+                    $myStore.Dispose()
+                }
+            }
+        }
+    }
 }

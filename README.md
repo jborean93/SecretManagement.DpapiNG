@@ -51,6 +51,10 @@ See [ConvertTo-DpapiNGSecret](./docs/en-US/ConvertTo-DpapiNGSecret.md) and [Conv
 To register a DPAPI-NG vault for use with `SecretManagement`:
 
 ```powershell
+# Registers a DPAPI-NG vault with the default path in the user profile.
+Register-SecretVault -Name DpapiNG -ModuleName SecretManagement.DpapiNG
+
+# Registers a DPAPI-NG vault with a custom vault path.
 $vaultParams = @{
     Name = 'MyVault'
     ModuleName = 'SecretManagement.DpapiNG'
@@ -61,7 +65,7 @@ $vaultParams = @{
 Register-SecretVault @vaultParams
 ```
 
-The vault `MyVault` can now be used with [Set-Secret](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.secretmanagement/set-secret?view=ps-modules) and [Get-Secret](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.secretmanagement/get-secret?view=ps-modules) to get and set secrets using DPAPI-NG.
+The vault name that was registered can now be used with [Set-Secret](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.secretmanagement/set-secret?view=ps-modules) and [Get-Secret](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.secretmanagement/get-secret?view=ps-modules) to get and set secrets using DPAPI-NG.
 
 ```powershell
 # Uses the default protection of 'LOCAL=user'
@@ -87,17 +91,20 @@ See [about_DpapiNGSecretManagement](./docs/en-US/about_DpapiNGSecretManagement.m
 
 The easiest way to install this module is through [PowerShellGet](https://docs.microsoft.com/en-us/powershell/gallery/overview).
 
-You can install this module by running;
+You can install this module by running either of the following `Install-PSResource` or `Install-Module` command.
 
 ```powershell
 # Install for only the current user
+Install-PSResource -Name SecretManagement.DpapiNG, Microsoft.PowerShell.SecretManagement -Scope CurrentUser
 Install-Module -Name SecretManagement.DpapiNG, Microsoft.PowerShell.SecretManagement -Scope CurrentUser
 
 # Install for all users
+Install-PSResource -Name SecretManagement.DpapiNG, Microsoft.PowerShell.SecretManagement -Scope AllUsers
 Install-Module -Name SecretManagement.DpapiNG, Microsoft.PowerShell.SecretManagement -Scope AllUsers
 ```
 
 If the `SecretManagement` implementation is not needed, the `Microsoft.PowerShell.SecretManagement` package can be omitted during the install.
+The `Install-PSResource` cmdlet is part of the new `PSResourceGet` module from Microsoft available in newer versions while `Install-Module` is present on older systems.
 
 ## Contributing
 

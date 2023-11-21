@@ -7,9 +7,23 @@ This guide will demonstrate how to register a DPAPI-NG vault and interact with i
 It is also possible to use the [ConvertTo-DpapiNGSecret](./ConvertTo-DpapiNGSecret.md) and [ConvertFrom-DpapiNGSecret](./ConvertFrom-DpapiNGSecret.md) cmdlets to encrypt and decrypt DPAPI-NG values manually without integration with a `SecretManagement` vault.
 
 # LONG DESCRIPTION
-The first step to using this with `SecretManagement` is to register a DPAPI-NG vault to interact with using [Register-SecretVault](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.secretmanagement/register-secretvault?view=ps-modules).
+The `SecretManagement` integration will only work if the [Microsoft.PowerShell.SecretManagement](https://www.powershellgallery.com/packages/Microsoft.PowerShell.SecretManagement/) has been installed.
 
 ```powershell
+# Using the new PSResourceGet module
+Install-PSResource -Name Microsoft.PowerShell.SecretManagement
+
+# Using the old PowerShellGet module
+Install-Module -Name Microsoft.PowerShell.SecretManagement
+```
+
+Once installed the next step is to register a DPAPI-NG vault to interact with using [Register-SecretVault](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.secretmanagement/register-secretvault?view=ps-modules).
+
+```powershell
+# Registers a DPAPI-NG vault with the default path in the user profile.
+Register-SecretVault -Name MyVault -ModuleName SecretManagement.DpapiNG
+
+# Registers a DPAPI-NG vault with a custom vault path
 $vaultParams = @{
     Name = 'MyVault'
     ModuleName = 'SecretManagement.DpapiNG'
@@ -20,8 +34,8 @@ $vaultParams = @{
 Register-SecretVault @vaultParams
 ```
 
-This cmdlet will create a DPAPI-NG vault called `MyVault` that stores the secrets at `C:\path\to\vault_file`.
-The vault file at `Path` will be automatically created when the first secret is stored.
+This cmdlet will create a DPAPI-NG vault called `MyVault`, if no `Path` was specified in the `VaultParameters` a default path under `$env:LOCALAPPDATA\SecretManagement.DpapiNG\default.vault` is used as the path.
+If the vault file specified does not exist it will automatically be created when the vault operation is performed.
 It must be a the path to a file and the parent directory must already exist.
 Once the vault is registered it can referenced by the `-VaultName MyVault` parameter on the other `SecretManagement` cmdlets.
 It is possible to copy the vault file directory to other hosts as long as the secrets it contains is protected in a way that isn't tied to the same host.
