@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: publish
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.event.release.tag_name, 'v')
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Needed for GitHub release asset task
