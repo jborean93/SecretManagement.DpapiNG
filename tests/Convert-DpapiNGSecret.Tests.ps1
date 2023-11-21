@@ -82,7 +82,7 @@ Describe "Convert*-DpapiNGSecret" {
         } | Should -Throw
     }
 
-    It "Fails to decrypt data" {
+    It "Fails to decrypt data" -Skip:$SIDUnvailable {
         $secret = ConvertTo-DpapiNGSecret foo -Sid "S-1-5-19"
 
         $actual = $secret | ConvertFrom-DpapiNGSecret -ErrorAction SilentlyContinue -ErrorVariable err
@@ -124,13 +124,13 @@ Describe "Convert*-DpapiNGSecret" {
         $secret | ConvertFrom-DpapiNGSecret -AsString | Should -Be foo
     }
 
-    It "Converts with the current sid" {
+    It "Converts with the current sid" -Skip:$SIDUnvailable {
         $secret = ConvertTo-DpapiNGSecret foo -CurrentSid
 
         $secret | ConvertFrom-DpapiNGSecret -AsString | Should -Be foo
     }
 
-    It "Converts with the explicit sid <Sid>" -TestCases @(
+    It "Converts with the explicit sid <Sid>" -Skip:$SIDUnvailable -TestCases @(
         @{ Sid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User }
         @{ Sid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
         @{ Sid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Translate([System.Security.Principal.NTAccount]) }

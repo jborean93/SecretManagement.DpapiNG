@@ -223,7 +223,7 @@ Describe "SecretManagement" {
     }
 
     It "Sets secret with explicit ProtectionDescriptor" {
-        $desc = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -CurrentSid
+        $desc = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -Local machine
 
         Set-Secret -Name MySecret -Secret value -Vault $vault @desc
 
@@ -232,11 +232,11 @@ Describe "SecretManagement" {
         $actual = Get-SecretInfo -Name MySecret -Vault $vault
         $actual.Name | Should -Be MySecret
         $actual.Metadata.Count | Should -Be 1
-        $actual.Metadata.ProtectionDescriptor | Should -Be "SID=$([System.Security.Principal.WindowsIdentity]::GetCurrent().User)"
+        $actual.Metadata.ProtectionDescriptor | Should -Be "LOCAL=machine"
     }
 
     It "Sets secret with explicit ProtectionDescriptor and extra metadata" {
-        $desc = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -CurrentSid
+        $desc = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -Local machine
 
         Set-Secret -Name MySecret -Secret value -Vault $vault -Metadata @{
             ProtectionDescriptor = $desc.ToString()
@@ -248,7 +248,7 @@ Describe "SecretManagement" {
         $actual = Get-SecretInfo -Name MySecret -Vault $vault
         $actual.Name | Should -Be MySecret
         $actual.Metadata.Count | Should -Be 2
-        $actual.Metadata.ProtectionDescriptor | Should -Be "SID=$([System.Security.Principal.WindowsIdentity]::GetCurrent().User)"
+        $actual.Metadata.ProtectionDescriptor | Should -Be "LOCAL=machine"
         $actual.Metadata.Other | Should -BeOfType ([string])
         $actual.Metadata.Other | Should -Be foo
     }

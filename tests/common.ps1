@@ -25,3 +25,12 @@ Function Global:Complete {
         $Expression.Length,
         $null).CompletionMatches
 }
+
+# The SID protector only works in a domain so some tests won't work in CI
+$global:SIDUnvailable = $false
+try {
+    $null = ConvertTo-DpapiNGSecret foo -CurrentSid -ErrorAction Stop | ConvertFrom-DpapiNGSecret -ErrorAction Stop
+}
+catch {
+    $global:SIDUnvailable = $true
+}
