@@ -20,6 +20,8 @@ New-DpapiNGDescriptor [<CommonParameters>]
 This is used to create the DPAPI-NG protection descriptor string.
 Use with [Add-DpapiNGDescriptor](./Add-DpapiNGDescriptor.md) to add descriptor elements to the protection string.
 
+See [about_DpapiNGProtectionDescriptor](./about_DpapiNGProtectionDescriptor.md) for more details.
+
 ## EXAMPLES
 
 ### Example 1
@@ -50,3 +52,4 @@ The ProtectionDescriptor object that can be piped to Add-DpapiNGDescriptor (./Ad
 ## RELATED LINKS
 
 [DPAPI NG Protection Descriptors](https://learn.microsoft.com/en-us/windows/win32/seccng/protection-descriptors)
+[about_DpapiNGProtectionDescriptor](./about_DpapiNGProtectionDescriptor.md)
