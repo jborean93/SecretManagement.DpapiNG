@@ -69,7 +69,7 @@ public class AddDpapiNGDescriptorCommand : PSCmdlet
         Mandatory = true,
         ParameterSetName = "Local"
     )]
-    [ValidateSet("User", "Machine")]
+    [ValidateSet("Logon", "Machine", "User")]
     public string Local { get; set; } = "User";
 
     [Parameter(
