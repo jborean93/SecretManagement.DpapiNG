@@ -1,5 +1,7 @@
 # Changelog for SecretManagement.DpapiNG
 
+## v0.3.0 - TBD
+
 ## v0.2.0 - 2023-11-21
 
 + Use a default vault path when registering a vault without a path
