@@ -53,9 +53,8 @@ Encrypts the input data into a base64 encoded string.
 The encrypted data is protected using the protection descriptor specified.
 Use [ConvertFrom-DpapiNGSecret](./ConvertFrom-DpapiNGSecret.md) to decrypt the secret data back into a usable object.
 By default the secret will be protected with the `LOCAL=user` protection descriptor which only allows the current user on the current host the ability to decrypt the secret.
-The `-Sid` or `-CurrentSid` parameters can be used to specify a specific domain user/group or the current domain user the ability to decrypt the secret.
-The [New-DpapiNGDescriptor](./New-DpapiNGDescriptor.md) and [Add-DpapiNGDescriptor](./Add-DpapiNGDescriptor.md) to build a more complex protection descriptor used to protect the secret.
-The `-Certificate` or `-CertificateThumbprint` parameters can be used to specify a certificate that can encrypt and decrypt the secret using the certificate specified.
+
+See [about_DpapiNGProtectionDescriptor](./about_DpapiNGProtectionDescriptor.md) for more details.
 
 ## EXAMPLES
 
@@ -288,3 +287,4 @@ The encrypted DPAPI-NG blob as a base64 encoded string.
 ## RELATED LINKS
 
 [DPAPI NG Protection Descriptors](https://learn.microsoft.com/en-us/windows/win32/seccng/protection-descriptors)
+[about_DpapiNGProtectionDescriptor](./about_DpapiNGProtectionDescriptor.md)

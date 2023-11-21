@@ -51,13 +51,7 @@ The following descriptor types are supported:
 
 + `CERTIFICATE`
 
-The `LOCAL` type can be scoped to just the current user, current logon session, or to the local machine.
-The `SID` type can be scoped to a domain user or domain group SecurityIdentifier.
-This protection is applied across the domain allowing a user with this SID to be able to decrypt the secret on any machine.
-To use the `SID` protection descriptor the host must be joined to a domain with the forest level of 2012 or newer.
-The `CERTIFICATE` type is scoped to the specified certificate used to encrypt and decrypt the data.
-The encryption process uses the certificate public key specified while the decryption process requires the associated private key.
-If specifying a certificate by a thumbprint the certificate must be in the `Cert:\CurrentUser\My` certificate store.
+See [about_DpapiNGProtectionDescriptor](./about_DpapiNGProtectionDescriptor.md) for more details.
 
 ## EXAMPLES
 
@@ -233,3 +227,4 @@ The modified ProtectionDescriptor object with the new clause.
 ## RELATED LINKS
 
 [DPAPI NG Protection Descriptors](https://learn.microsoft.com/en-us/windows/win32/seccng/protection-descriptors)
+[about_DpapiNGProtectionDescriptor](./about_DpapiNGProtectionDescriptor.md)
