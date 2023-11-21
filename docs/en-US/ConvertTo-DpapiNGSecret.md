@@ -94,6 +94,8 @@ Protects the secret with the current domain user's identity.
 The encrypted secret can be decrypted by this user on any other host in the domain.
 This is the equivalent of doing `-ProtectionDescriptor "SID=$([System.Security.Principal.WindowsIdentity]::GetCurrent().User)"`.
 
+Using a `SID` protection descriptor requires the host to be joined to a domain with a forest level of 2012 or newer.
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: SidCurrent
@@ -167,9 +169,11 @@ Accept wildcard characters: False
 ```
 
 ### -Local
-Protects the secret using the `LOCAL=machine` or `LOCAL=user` protection descriptor.
+Protects the secret using the `LOCAL=machine`, `LOCAL=user`, or `LOCAL=logon` protection descriptor.
 The `User` value protects the secret to just this user on the current host and is the default value.
 The `Machine` value protects the secret to the current computer.
+The `Logon` value protects the secret to just this user's logon session.
+This is slightly different to `User` in that the same user logged on through another session will be unable to decrypt the secret.
 
 ```yaml
 Type: String
@@ -201,9 +205,11 @@ Accept wildcard characters: False
 ```
 
 ### -Sid
-Allows only the user or group specified by this SID to be able to decrypt the DPAPI-NG secret.
+Allows only the domain user or domain group specified by this SID to be able to decrypt the DPAPI-NG secret.
 If a group SID is specified, any user who is a member of that group can decrypt the secret it applies to.
 The value can either by a SecurityIdentifier string in the format `S-1-...` or as a [System.Security.Principal.NTAccount](https://learn.microsoft.com/en-us/dotnet/api/system.security.principal.ntaccount?view=net-8.0) object which will automatically be translated to a SID.
+
+Using a `SID` protection descriptor requires the host to be joined to a domain with a forest level of 2012 or newer.
 
 ```yaml
 Type: StringOrAccount

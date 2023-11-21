@@ -33,6 +33,9 @@ $da = [System.Security.Principal.NTAccount]'DOMAIN\Domain Admins'
 ConvertTo-DpapiNGSecret MySecret -Sid $da
 ```
 
+The `-CurrentSid` and `-Sid` options can be used on domain joined hosts to protect a secret for that domain user/group specified.
+This secret can be decrypted by that user or member of the group specified on any domain joined host.
+
 To decrypt the DPAPI-NG blob back:
 
 ```powershell

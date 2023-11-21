@@ -37,9 +37,10 @@ The following descriptor types are supported:
 
 + `SID`
 
-The `LOCAL` type can be scoped to just the current user locally or to the local machine.
-The `SID` type can be scoped to a user or group SecurityIdentifier.
+The `LOCAL` type can be scoped to just the current user, current logon session, or to the local machine.
+The `SID` type can be scoped to a domain user or domain group SecurityIdentifier.
 This protection is applied across the domain allowing a user with this SID to be able to decrypt the secret on any machine.
+To use the `SID` protection descriptor the host must be joined to a domain with the forest level of 2012 or newer.
 
 ## EXAMPLES
 
@@ -79,6 +80,8 @@ Creates a DPAPI-NG secret that is protected by the current user when a `Domain A
 Adds the clause `SID=$UserSid` where `$UserSid` represents the current user's SecurityIdentifier.
 A secret protected by this value can be decrypted by this user on any machine in the domain.
 
+Using a `SID` protection descriptor requires the host to be joined to a domain with a forest level of 2012 or newer.
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: SidCurrent
@@ -107,9 +110,11 @@ Accept wildcard characters: False
 ```
 
 ### -Local
-Adds the `LOCAL` descriptor clause to either `User` or `Machine`.
+Adds the `LOCAL` descriptor clause to either `User`, `Machine`, `Logon`.
 The `User` value protects the secret to just this user on the current host.
 The `Machine` value protects the secret to the current computer.
+The `Logon` value protects the secret to just this user's logon session.
+This is slightly different to `User` in that the same user logged on through another session will be unable to decrypt the secret.
 
 ```yaml
 Type: String
@@ -144,6 +149,8 @@ Accept wildcard characters: False
 Adds the `SID` descriptor clause to the SecurityIdentifier specified.
 The SecurityIdentifier can be the SID of a domain user or group.
 If a group SID is specified, any user who is a member of that group can decrypt the secret it applies to.
+
+Using a `SID` protection descriptor requires the host to be joined to a domain with a forest level of 2012 or newer.
 
 ```yaml
 Type: StringOrAccount

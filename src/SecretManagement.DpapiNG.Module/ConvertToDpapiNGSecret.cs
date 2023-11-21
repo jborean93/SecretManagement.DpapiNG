@@ -49,7 +49,7 @@ public sealed class ConvertToDpapiNGCommand : PSCmdlet
         Position = 1,
         ParameterSetName = "Local"
     )]
-    [ValidateSet("Machine", "User")]
+    [ValidateSet("Logon", "Machine", "User")]
     public string Local { get; set; } = "User";
 
     [Parameter(
