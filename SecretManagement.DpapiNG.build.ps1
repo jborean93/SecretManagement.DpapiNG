@@ -21,7 +21,12 @@ $UseNativeArguments = $PSVersionTable.PSVersion.Major -gt 7 -or ($PSVersionTable
 [xml]$csharpProjectInfo = Get-Content ([IO.Path]::Combine($CSharpPath, '*.csproj'))
 $TargetFrameworks = @(@($csharpProjectInfo.Project.PropertyGroup)[0].TargetFrameworks.Split(
         ';', [StringSplitOptions]::RemoveEmptyEntries))
-$PSFramework = $TargetFrameworks[0]
+$PSFramework = if ($IsCoreCLR) {
+    $TargetFrameworks[1]
+}
+else {
+    $TargetFrameworks[0]
+}
 
 task Clean {
     if (Test-Path $ReleasePath) {
@@ -77,7 +82,7 @@ task CopyToRelease {
     $extManifestPath = [IO.Path]::Combine($ReleasePath, "$($ModuleName).Extension", "$($ModuleName).Extension.psd1")
     $extManifest = Get-Content -LiteralPath $extManifestPath
     $extManifest = $extManifest.Replace(
-        "ModuleVersion = ''",
+        "ModuleVersion = '0.0.0.0'",
         "ModuleVersion = '$($Manifest.Version)'"
     ).Replace(
         "Author = ''",
@@ -110,7 +115,7 @@ task CopyToRelease {
 task Sign {
     $vaultName = $env:AZURE_KEYVAULT_NAME
     $vaultCert = $env:AZURE_KEYVAULT_CERT
-    if (-not $vaultName -or -not $vaultCert) {
+    if (-not $vaultName -or -not $vaultCert -or -not $IsCoreCLR) {
         return
     }
 
@@ -250,11 +255,11 @@ task DoTest {
     $targetArgs = '"' + ($arguments -join '" "') + '"'
 
     if ($UseNativeArguments) {
-        $watchFolder = [IO.Path]::Combine($ReleasePath, 'bin', $PSFramework)
+        $watchFolder = [IO.Path]::Combine($ReleasePath, "$ModuleName.Extension", 'bin', $PSFramework)
     }
     else {
         $targetArgs = '"' + ($targetArgs -replace '"', '\"') + '"'
-        $watchFolder = '"{0}"' -f ([IO.Path]::Combine($ReleasePath, 'bin', $PSFramework))
+        $watchFolder = '"{0}"' -f ([IO.Path]::Combine($ReleasePath, "$ModuleName.Extension", 'bin', $PSFramework))
     }
 
     $arguments = @(

@@ -1,5 +1,6 @@
 using SecretManagement.DpapiNG.Native;
 using System;
+using System.ComponentModel;
 using System.Management.Automation;
 using System.Security;
 using System.Text;
@@ -54,24 +55,43 @@ public sealed class ConvertFromDpapiNGCommand : PSCmdlet
 
         foreach (string input in InputObject)
         {
-            using SafeNCryptData blob = NCrypt.NCryptUnprotectSecret(
-                NCrypt.NCRYPT_SILENT_FLAG,
-                Convert.FromBase64String(input),
-                out var desc);
-            desc.Dispose();
+            SafeNCryptData blob;
+            try
+            {
+                blob = NCrypt.NCryptUnprotectSecret(
+                    NCrypt.NCRYPT_SILENT_FLAG,
+                    Convert.FromBase64String(input),
+                    out var desc);
+                desc.Dispose();
+            }
+            catch (Win32Exception e)
+            {
+                ErrorRecord err = new(
+                    e,
+                    "SecretManagement.DpapiNG.DecryptError",
+                    ErrorCategory.NotSpecified,
+                    null
+                );
+                err.ErrorDetails = new($"Failed to decrypt data: {e.Message} (0x{e.NativeErrorCode:X2})");
+                WriteError(err);
+                continue;
+            }
 
-            ReadOnlySpan<byte> blobSpan = blob.DangerousGetSpan();
-            if (ParameterSetName == "AsSecureString")
+            using (blob)
             {
-                WriteObject(SecretConverters.ConvertToSecureString(blobSpan, enc));
-            }
-            else if (ParameterSetName == "AsString")
-            {
-                WriteObject(SecretConverters.ConvertToString(blobSpan, enc));
-            }
-            else
-            {
-                WriteObject(blobSpan.ToArray(), enumerateCollection: false);
+                ReadOnlySpan<byte> blobSpan = blob.DangerousGetSpan();
+                if (ParameterSetName == "AsSecureString")
+                {
+                    WriteObject(SecretConverters.ConvertToSecureString(blobSpan, enc));
+                }
+                else if (ParameterSetName == "AsString")
+                {
+                    WriteObject(SecretConverters.ConvertToString(blobSpan, enc));
+                }
+                else
+                {
+                    WriteObject(blobSpan.ToArray(), enumerateCollection: false);
+                }
             }
         }
     }

@@ -35,7 +35,7 @@ public sealed class SetSecretInfoCommand : DpapiNGSecretBase
             return;
         }
 
-        Hashtable existingMetadata = (Hashtable)PSSerializer.Deserialize(existingSecret.Metadata);
+        Hashtable existingMetadata = (Hashtable)((PSObject)PSSerializer.Deserialize(existingSecret.Metadata)).BaseObject;
         bool changed = false;
         foreach (DictionaryEntry kvp in Metadata)
         {
@@ -49,7 +49,7 @@ public sealed class SetSecretInfoCommand : DpapiNGSecretBase
 
             if (key == "ProtectionDescriptor")
             {
-                if (existingValue != value)
+                if (!LanguagePrimitives.Equals(value, existingValue))
                 {
                     string msg =
                         "It is not possible to change the ProtectionDescriptor for an existing set. Use " +
@@ -63,7 +63,7 @@ public sealed class SetSecretInfoCommand : DpapiNGSecretBase
                     WriteError(err);
                 }
             }
-            else if (existingValue == null || existingValue != value)
+            else if (existingValue == null || !LanguagePrimitives.Equals(value, existingValue))
             {
                 // The entry wasn't present or doesn't match the new value.
                 existingMetadata[key] = value;
