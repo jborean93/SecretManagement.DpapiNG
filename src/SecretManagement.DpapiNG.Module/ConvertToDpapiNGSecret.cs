@@ -7,7 +7,6 @@ using System.Linq;
 using System.Management.Automation;
 using System.Net;
 using System.Security;
-using System.Security.Principal;
 using System.Text;
 
 namespace SecretManagement.DpapiNG.Module;
@@ -27,9 +26,13 @@ public sealed class StringOrProtectionDescriptor
     }
 }
 
-[Cmdlet(VerbsData.ConvertTo, "DpapiNGSecret", DefaultParameterSetName = "Local")]
+[Cmdlet(
+    VerbsData.ConvertTo,
+    "DpapiNGSecret",
+    DefaultParameterSetName = DEFAULT_PARAM_SET
+)]
 [OutputType(typeof(string))]
-public sealed class ConvertToDpapiNGCommand : PSCmdlet
+public sealed class ConvertToDpapiNGCommand : DpapiNGDescriptorBase
 {
     [Parameter(
         Mandatory = true,
@@ -44,24 +47,6 @@ public sealed class ConvertToDpapiNGCommand : PSCmdlet
         ParameterSetName = "ProtectionDescriptor"
     )]
     public StringOrProtectionDescriptor? ProtectionDescriptor { get; set; }
-
-    [Parameter(
-        Position = 1,
-        ParameterSetName = "Local"
-    )]
-    [ValidateSet("Logon", "Machine", "User")]
-    public string Local { get; set; } = "User";
-
-    [Parameter(
-        Position = 1,
-        ParameterSetName = "Sid"
-    )]
-    public StringOrAccount? Sid { get; set; }
-
-    [Parameter(
-        ParameterSetName = "SidCurrent"
-    )]
-    public SwitchParameter CurrentSid { get; set; }
 
     [Parameter]
     [EncodingTransformAttribute]
@@ -81,21 +66,9 @@ public sealed class ConvertToDpapiNGCommand : PSCmdlet
         {
             protectionDescriptor = ProtectionDescriptor.Value;
         }
-        else if (Sid != null)
-        {
-            protectionDescriptor = $"SID={Sid.Value}";
-        }
-        else if (CurrentSid)
-        {
-#pragma warning disable CA1416
-#pragma warning disable CS8602
-            protectionDescriptor = $"SID={WindowsIdentity.GetCurrent().User.Value}";
-#pragma warning restore CA1416
-#pragma warning restore CS8602
-        }
         else
         {
-            protectionDescriptor = $"LOCAL={Local.ToLowerInvariant()}";
+            protectionDescriptor = GetRuleString();
         }
 
         SafeNCryptProtectionDescriptor desc;

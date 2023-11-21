@@ -14,17 +14,29 @@ Adds a new protection descriptor clause.
 
 ### Local (Default)
 ```
-Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> -Local <String> [-Or] [<CommonParameters>]
+Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> [-Or] [-Local <String>] [<CommonParameters>]
 ```
 
 ### Sid
 ```
-Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> -Sid <StringOrAccount> [-Or] [<CommonParameters>]
+Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> [-Or] -Sid <StringOrAccount> [<CommonParameters>]
 ```
 
 ### SidCurrent
 ```
-Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> [-CurrentSid] [-Or] [<CommonParameters>]
+Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> [-Or] [-CurrentSid] [<CommonParameters>]
+```
+
+### Certificate
+```
+Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> [-Or] -Certificate <X509Certificate2>
+ [<CommonParameters>]
+```
+
+### CertificateThumbprint
+```
+Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> [-Or] -CertificateThumbprint <String>
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,10 +49,15 @@ The following descriptor types are supported:
 
 + `SID`
 
++ `CERTIFICATE`
+
 The `LOCAL` type can be scoped to just the current user, current logon session, or to the local machine.
 The `SID` type can be scoped to a domain user or domain group SecurityIdentifier.
 This protection is applied across the domain allowing a user with this SID to be able to decrypt the secret on any machine.
 To use the `SID` protection descriptor the host must be joined to a domain with the forest level of 2012 or newer.
+The `CERTIFICATE` type is scoped to the specified certificate used to encrypt and decrypt the data.
+The encryption process uses the certificate public key specified while the decryption process requires the associated private key.
+If specifying a certificate by a thumbprint the certificate must be in the `Cert:\CurrentUser\My` certificate store.
 
 ## EXAMPLES
 
@@ -75,6 +92,40 @@ PS C:\> ConvertTo-DpapiNGSecret secret -ProtectionDescriptor $desc
 Creates a DPAPI-NG secret that is protected by the current user when a `Domain Admins` member.
 
 ## PARAMETERS
+
+### -Certificate
+The `X509Certificate2` to use when encrypting the data.
+The decryptor needs to have the associated private key of the certificate used to decrypt the value.
+This method will set the protection descriptor `CERTIFICATE=CertBlob:$certBase64String`.
+
+```yaml
+Type: X509Certificate2
+Parameter Sets: Certificate
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CertificateThumbprint
+The thumbprint for a certificate stored inside `Cert:\CurrentUser\My` to use for encryption.
+Only the public key needs to be present to encrypt the value but the decryption process requires the associated private key to be present.
+This method will set the protection descriptor `CERTIFICATE=HashID:$CertificateThumbprint`.
+
+```yaml
+Type: String
+Parameter Sets: CertificateThumbprint
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -CurrentSid
 Adds the clause `SID=$UserSid` where `$UserSid` represents the current user's SecurityIdentifier.
@@ -122,7 +173,7 @@ Parameter Sets: Local
 Aliases:
 Accepted values: User, Machine
 
-Required: True
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
