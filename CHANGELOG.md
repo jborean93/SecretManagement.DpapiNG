@@ -1,6 +1,6 @@
 # Changelog for SecretManagement.DpapiNG
 
-## v0.3.0 - TBD
+## v0.3.0 - 2023-11-22
 
 + Add support for `-WebCredential` when specifying a DPAPI-NG protection descriptor
 
