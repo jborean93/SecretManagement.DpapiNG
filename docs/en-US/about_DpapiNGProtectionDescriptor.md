@@ -16,8 +16,9 @@ While it is possible to define a custom protection descriptor string there are a
 |`CERTIFICATE`|`HashID:$certThumbprint`, `CertBlobc:$certB64String`|Protects the data using the certificate provided.|
 |`WEBCREDENTIALS`|`$username,$resource`|Protects the data with the password of a web credential stored in credential manager.|
 
-There is also the `SDDL` and `WEBCREDENTIALS` type but these are not exposed through a helper parameter in this module.
-It is still possible to use these types with `-ProtectionDescriptor "WEBCREDENTIALS=..."` through a manual string.
+There is also the `SDDL` type but it is not exposed through a helper parameter in this module.
+The `SDDL` format is the more advanced format of the `SID` type but the way it is defined is a lot more complex.
+It is still possible to use this type, or any future types, with `-ProtectionDescriptor "SDDL=..."` through a manual string.
 
 # LOCAL
 The `LOCAL` protection descriptor can be used to encrypt a secret that only the current logon session, computer/machine, or user can decrypt.
