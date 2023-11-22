@@ -2,6 +2,8 @@
 
 ## v0.3.0 - TBD
 
++ Add support for `-WebCredential` when specifying a DPAPI-NG protection descriptor
+
 ## v0.2.0 - 2023-11-21
 
 + Use a default vault path when registering a vault without a path

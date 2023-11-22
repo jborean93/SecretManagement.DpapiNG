@@ -305,4 +305,40 @@ Describe "Convert*-DpapiNGSecret" {
             }
         }
     }
+
+    Context "WebCredential test" {
+        BeforeAll {
+            $resource = 'SecretManagement.DpapiNG.Test'
+            $username = 'DpapiNG-User'
+
+            # WinRT only works in Windows PowerShell, use an implicit
+            # removing session for Pwsh.
+            $session = $null
+            if ($IsCoreCLR) {
+                $session = New-PSSession -UseWindowsPowerShell
+
+                Invoke-Command -Session $session -Scriptblock ${function:New-WebCredential} -ArgumentList $resource, $username
+            }
+            else {
+                New-WebCredential -Resource $resource -UserName $username
+            }
+        }
+
+        AfterAll {
+            if ($session) {
+                Invoke-Command -Session $session -Scriptblock ${function:Remove-WebCredential} -ArgumentList $resource, $username
+
+                $session | Remove-PSSession
+            }
+            else {
+                Remove-WebCredential -Resource $resource -UserName $username
+            }
+        }
+
+        It "Creates web credential secret" {
+            $actual = ConvertTo-DpapiNGSecret foo -WebCredential "$username,$resource"
+
+            $actual | ConvertFrom-DpapiNGSecret -AsString | Should -Be foo
+        }
+    }
 }

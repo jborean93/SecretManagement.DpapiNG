@@ -39,6 +39,11 @@ Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> [-Or] -CertificateThum
  [<CommonParameters>]
 ```
 
+### WebCredential
+```
+Add-DpapiNGDescriptor -InputObject <ProtectionDescriptor> [-Or] -WebCredential <String> [<CommonParameters>]
+```
+
 ## DESCRIPTION
 Adds a new protection descriptor clause to an existing protection descriptor created by [New-DpapiNGDescriptor](./New-DpapiNGDescriptor.md).
 Each new clause will be added with an `AND` unless `-Or` is specified.
@@ -50,6 +55,8 @@ The following descriptor types are supported:
 + `SID`
 
 + `CERTIFICATE`
+
++ `WEBCREDENTIALS`
 
 See [about_DpapiNGProtectionDescriptor](./about_DpapiNGProtectionDescriptor.md) for more details.
 
@@ -200,6 +207,22 @@ Using a `SID` protection descriptor requires the host to be joined to a domain w
 ```yaml
 Type: StringOrAccount
 Parameter Sets: Sid
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WebCredential
+The credential manager to protect the secret with.
+The string value is in the format `username,resource`, for example a web credential for `dpapi-ng.com` with the user `MyUser` would be `-WebCredential 'MyUser,dpapi-ng.com'`.
+
+```yaml
+Type: String
+Parameter Sets: WebCredential
 Aliases:
 
 Required: True

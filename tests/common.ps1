@@ -35,6 +35,42 @@ catch {
     $global:SIDUnvailable = $true
 }
 
+Function global:New-WebCredential {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]
+        $Resource,
+
+        [Parameter(Mandatory, Position = 1)]
+        [string]
+        $UserName
+    )
+
+    $vault = [Windows.Security.Credentials.PasswordVault, Windows.Security.Credentials, ContentType = WindowsRuntime]::new()
+    $vault.Add([Windows.Security.Credentials.PasswordCredential, Windows.Security.Credentials, ContentType = WindowsRuntime]::new(
+            $Resource,
+            $UserName,
+            "ResourcePassword"
+        ))
+}
+
+Function global:Remove-WebCredential {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)]
+        [string]
+        $Resource,
+
+        [Parameter(Mandatory)]
+        [string]
+        $UserName
+    )
+
+    $vault = [Windows.Security.Credentials.PasswordVault, Windows.Security.Credentials, ContentType = WindowsRuntime]::new()
+    $vault.Remove($vault.Retrieve($Resource, $UserName))
+}
+
 if ($IsCoreCLR) {
     Function global:New-X509Certificate {
         [OutputType([System.Security.Cryptography.X509Certificates.X509Certificate2])]
