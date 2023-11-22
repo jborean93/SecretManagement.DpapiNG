@@ -37,6 +37,12 @@ public abstract class DpapiNGDescriptorBase : PSCmdlet
     )]
     public string? CertificateThumbprint { get; set; }
 
+    [Parameter(
+        Mandatory = true,
+        ParameterSetName = "WebCredential"
+    )]
+    public string? WebCredential { get; set; }
+
     internal string GetRuleString() => ParameterSetName switch
     {
         "Local" => $"LOCAL={Local.ToLowerInvariant()}",
@@ -48,6 +54,7 @@ public abstract class DpapiNGDescriptorBase : PSCmdlet
 #pragma warning restore CS8602
         "Certificate" => $"CERTIFICATE=CertBlob:{Convert.ToBase64String(Certificate!.Export(X509ContentType.Cert))}",
         "CertificateThumbprint" => $"CERTIFICATE=HashId:{CertificateThumbprint!}",
+        "WebCredential" => $"WEBCREDENTIALS={WebCredential}",
         _ => throw new NotImplementedException(),
     };
 }

@@ -48,6 +48,12 @@ ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-Encod
  -CertificateThumbprint <String> [<CommonParameters>]
 ```
 
+### WebCredential
+```
+ConvertTo-DpapiNGSecret [-InputObject] <StringSecureStringOrByteArray[]> [-Encoding <Encoding>]
+ -WebCredential <String> [<CommonParameters>]
+```
+
 ## DESCRIPTION
 Encrypts the input data into a base64 encoded string.
 The encrypted data is protected using the protection descriptor specified.
@@ -260,6 +266,22 @@ Using a `SID` protection descriptor requires the host to be joined to a domain w
 ```yaml
 Type: StringOrAccount
 Parameter Sets: Sid
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WebCredential
+The credential manager to protect the secret with.
+The string value is in the format `username,resource`, for example a web credential for `dpapi-ng.com` with the user `MyUser` would be `-WebCredential 'MyUser,dpapi-ng.com'`.
+
+```yaml
+Type: String
+Parameter Sets: WebCredential
 Aliases:
 
 Required: True

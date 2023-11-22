@@ -14,6 +14,7 @@ While it is possible to define a custom protection descriptor string there are a
 |`LOCAL`|`Logon`, `Machine`, `User`|Protects the data to the logon session, computer, or user|
 |`SID`|`S-*`|Protects the data to the domain user or group specified|
 |`CERTIFICATE`|`HashID:$certThumbprint`, `CertBlobc:$certB64String`|Protects the data using the certificate provided.|
+|`WEBCREDENTIALS`|`$username,$resource`|Protects the data with the password of a web credential stored in credential manager.|
 
 There is also the `SDDL` and `WEBCREDENTIALS` type but these are not exposed through a helper parameter in this module.
 It is still possible to use these types with `-ProtectionDescriptor "WEBCREDENTIALS=..."` through a manual string.
@@ -84,6 +85,47 @@ If using `-CertificateThumbprint` the certificate referenced by the thumbprint m
 If using `-Certificate` the certificate does not need to be in any store to encrypt the data.
 To decrypt the data, the private key referenced by the certificate must be accessible by the user.
 Typically this means the certificate is stored in `Cert:\CurrentUser\My` with a referenced private key.
+
+# WEBCREDENTIALS
+The `WEBCREDENTIALS` protection descriptor can be used to protect a secret using a saved Web Credential in the Credential Manager.
+Web Credentials are typically used by WinRT/Store applications where a credential is scoped specifically for the application that created them.
+They are set to roam across devices using the same Microsoft Account profile making the secret portable outside of a domain environment.
+One downside is that for normal Win32 applications that are not WinRT/Store apps, these credentials are visible to that user and not just when running the app that created it.
+
+The `-WebCredential` parameter can be used to specify this protection type.
+
+```powershell
+ConvertTo-DpapiNGSecret foo -WebCredential 'username,resource'
+```
+
+While typically Web Credentials are created by specific WinRT/Store applications it is possible to do so globally for user.
+The following code can be used in Windows PowerShell 5.1 to manage Web Credentials using the WinRT [PasswordVault Class](https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.passwordvault?view=winrt-22621):
+
+```powershell
+$vault = [Windows.Security.Credentials.PasswordVault, Windows.Security.Credentials, ContentType = WindowsRuntime]::new()
+
+# Retrieves all Web Credentials
+$vault.RetrieveAll() | Select-Object -Property UserName, Resource
+
+# Retrieves all Web Credentials for a resource
+$vault.FindAllByResource("resource")
+
+# Retrieves all Web Credentials for a username
+$vault.FindAllByUserName("username")
+
+# Adds a new Web Credential
+$vault.Add([Windows.Security.Credentials.PasswordCredential, Windows.Security.Credentials, ContentType = WindowsRuntime]::new(
+    "resource",
+    "username",
+    "password"
+))
+
+# Removes a specific Web Credential
+$vault.Remove($vault.Retrieve("resource", "username"))
+```
+
+Please note that this will only work in Windows PowerShell (`powershell.exe` 5.1) and not PowerShell (`pwsh.exe` 7+) which lacks the required WinRT components.
+Also doing so will create a web credential that is not scoped to a specific application but rather the user as Windows PowerShell is a Win32 application.
 
 # AND Conditions
 Using the [New-DpapiNGDescriptor](./New-DpapiNGDescriptor.md) and [Add-DpapiNGDescriptor](./Add-DpapiNGDescriptor.md) cmdlets it is possible to create a descriptor with multiple clauses.
