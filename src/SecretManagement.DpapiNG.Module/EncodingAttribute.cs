@@ -44,7 +44,7 @@ public sealed class EncodingTransformAttribute : ArgumentTransformationAttribute
     };
 }
 
-#if CORE
+#if NET6_0_OR_GREATER
 public class EncodingCompletionsAttribute : ArgumentCompletionsAttribute
 {
     public EncodingCompletionsAttribute() : base(EncodingTransformAttribute.KNOWN_ENCODINGS)

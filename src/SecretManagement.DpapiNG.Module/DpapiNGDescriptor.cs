@@ -91,7 +91,7 @@ public sealed class StringOrAccount
         Value = value;
     }
 
-#if CORE
+#if NET6_0_OR_GREATER
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
     public StringOrAccount(IdentityReference value)

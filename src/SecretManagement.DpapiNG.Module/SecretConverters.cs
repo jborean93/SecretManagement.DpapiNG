@@ -14,7 +14,7 @@ internal static class SecretConverters
 
     public static string ConvertToString(ReadOnlySpan<byte> data, Encoding encoding)
     {
-#if CORE
+#if NET6_0_OR_GREATER
         return encoding.GetString(data);
 #else
         unsafe

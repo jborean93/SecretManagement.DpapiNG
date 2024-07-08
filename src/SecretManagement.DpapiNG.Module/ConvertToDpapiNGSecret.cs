@@ -50,7 +50,7 @@ public sealed class ConvertToDpapiNGCommand : DpapiNGDescriptorBase
 
     [Parameter]
     [EncodingTransformAttribute]
-#if CORE
+#if NET6_0_OR_GREATER
     [EncodingCompletionsAttribute]
 #else
     [ArgumentCompleter(typeof(EncodingCompletionsAttribute))]
@@ -115,7 +115,7 @@ public sealed class ConvertToDpapiNGCommand : DpapiNGDescriptorBase
                 string b64;
                 using (blob)
                 {
-#if CORE
+#if NET6_0_OR_GREATER
                     b64 = Convert.ToBase64String(blob.DangerousGetSpan());
 #else
                     b64 = Convert.ToBase64String(blob.DangerousGetSpan().ToArray());
