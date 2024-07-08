@@ -16,7 +16,7 @@ if ($PSVersionTable.PSVersion.Major -eq 5) {
         &$importModule -Assembly $modAssembly -Force -PassThru
     }
     else {
-        $modPath = [System.IO.Path]::Combine($PSScriptRoot, 'bin', 'net472', "$moduleName.Module.dll")
+        $modPath = [System.IO.Path]::Combine($PSScriptRoot, '..', 'bin', 'net472', "$moduleName.Module.dll")
         &$importModule -Name $modPath -ErrorAction Stop -PassThru
     }
 }
@@ -26,7 +26,7 @@ else {
     # that ALC.
 
     if (-not ('SecretManagement.DpapiNG.LoadContext' -as [type])) {
-        Add-Type -Path ([System.IO.Path]::Combine($PSScriptRoot, 'bin', 'net6.0', "$moduleName.dll"))
+        Add-Type -Path ([System.IO.Path]::Combine($PSScriptRoot, '..', 'bin', 'net6.0', "$moduleName.dll"))
     }
 
     $mainModule = [SecretManagement.DpapiNG.LoadContext]::Initialize()

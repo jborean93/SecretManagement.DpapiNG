@@ -42,7 +42,7 @@ public sealed class ConvertFromDpapiNGCommand : PSCmdlet
         ParameterSetName = "AsString"
     )]
     [EncodingTransformAttribute]
-#if CORE
+#if NET6_0_OR_GREATER
     [EncodingCompletionsAttribute]
 #else
     [ArgumentCompleter(typeof(EncodingCompletionsAttribute))]
