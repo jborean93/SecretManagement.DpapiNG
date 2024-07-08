@@ -10,6 +10,8 @@ namespace SecretManagement.DpapiNG.Module;
 
 public abstract class DpapiNGSecretBase : PSCmdlet
 {
+    protected virtual bool ReadOnly => false;
+
     [Parameter]
     public Hashtable AdditionalParameters { get; set; } = new();
 
@@ -56,7 +58,8 @@ public abstract class DpapiNGSecretBase : PSCmdlet
         }
 
         FileAttributes dbAttr = new FileInfo(providerPath).Attributes;
-        if ((int)dbAttr == -1 && !Directory.Exists(Path.GetDirectoryName(providerPath)))
+        bool dbExists = (int)dbAttr != -1;
+        if (!dbExists && !Directory.Exists(Path.GetDirectoryName(providerPath)))
         {
             string msg =
                 $"Invalid SecretManagement.DpapiNG vault registration: Path '{vaultPath}' must exist or the parent " +
@@ -70,7 +73,7 @@ public abstract class DpapiNGSecretBase : PSCmdlet
             WriteError(err);
             return;
         }
-        else if ((int)dbAttr != -1 && (dbAttr & FileAttributes.Directory) != 0)
+        else if (dbExists && (dbAttr & FileAttributes.Directory) != 0)
         {
             string msg =
                 $"Invalid SecretManagement.DpapiNG vault registration: Path '{vaultPath}' must be the path to a " +
@@ -85,7 +88,14 @@ public abstract class DpapiNGSecretBase : PSCmdlet
             return;
         }
 
-        using LiteDatabase db = new(providerPath);
+        ConnectionString connString = new()
+        {
+            Filename = providerPath,
+            // Allows concurrent connections
+            Connection = ConnectionType.Shared,
+            ReadOnly = ReadOnly && dbExists,
+        };
+        using LiteDatabase db = new(connString);
         ILiteCollection<Secret> secrets = db.GetCollection<Secret>("secrets");
         ProcessVault(secrets);
     }

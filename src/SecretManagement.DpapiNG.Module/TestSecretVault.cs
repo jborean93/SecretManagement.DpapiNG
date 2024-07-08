@@ -6,6 +6,8 @@ namespace SecretManagement.DpapiNG.Module;
 [Cmdlet(VerbsDiagnostic.Test, "SecretVault")]
 public sealed class TestSecretVaultCommand : DpapiNGSecretBase
 {
+    protected override bool ReadOnly => true;
+
     [Parameter]
     public string VaultName { get; set; } = "";
 

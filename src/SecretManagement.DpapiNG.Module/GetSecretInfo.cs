@@ -11,6 +11,8 @@ namespace SecretManagement.DpapiNG.Module;
 [Cmdlet(VerbsCommon.Get, "SecretInfo")]
 public sealed class GetSecretInfoCommand : DpapiNGSecretBase
 {
+    protected override bool ReadOnly => true;
+
     [Parameter]
     public string Filter { get; set; } = "";
 
