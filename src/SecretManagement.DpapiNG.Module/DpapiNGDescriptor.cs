@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Management.Automation;
@@ -88,7 +89,21 @@ public sealed class StringOrAccount
 
     public StringOrAccount(string value)
     {
-        Value = value;
+#pragma warning disable CA1416
+        // First check if it's a SID string value.
+        try
+        {
+            SecurityIdentifier sid = new(value);
+            Value = sid.Value;
+            return;
+        }
+        catch (ArgumentException)
+        {}
+
+        // If not try to translate the account name to a SID.
+        NTAccount account = new(value);
+        Value = account.Translate(typeof(SecurityIdentifier)).Value;
+#pragma warning restore CA1416
     }
 
 #if NET6_0_OR_GREATER

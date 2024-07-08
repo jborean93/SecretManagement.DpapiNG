@@ -259,7 +259,7 @@ Accept wildcard characters: False
 ### -Sid
 Allows only the domain user or domain group specified by this SID to be able to decrypt the DPAPI-NG secret.
 If a group SID is specified, any user who is a member of that group can decrypt the secret it applies to.
-The value can either by a SecurityIdentifier string in the format `S-1-...` or as a [System.Security.Principal.NTAccount](https://learn.microsoft.com/en-us/dotnet/api/system.security.principal.ntaccount?view=net-8.0) object which will automatically be translated to a SID.
+The value can either by a SecurityIdentifier string in the format `S-1-...`, NTAccount string that will be translated to a `SecurityIdentifier` string, or as a [System.Security.Principal.NTAccount](https://learn.microsoft.com/en-us/dotnet/api/system.security.principal.ntaccount?view=net-8.0) object which will automatically be translated to a SID.
 
 Using a `SID` protection descriptor requires the host to be joined to a domain with a forest level of 2012 or newer.
 
