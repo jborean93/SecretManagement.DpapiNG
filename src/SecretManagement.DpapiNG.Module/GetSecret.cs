@@ -9,6 +9,8 @@ namespace SecretManagement.DpapiNG.Module;
 [Cmdlet(VerbsCommon.Get, "Secret")]
 public sealed class GetSecretCommand : DpapiNGSecretBase
 {
+    protected override bool ReadOnly => true;
+
     [Parameter]
     public string Name { get; set; } = "";
 
