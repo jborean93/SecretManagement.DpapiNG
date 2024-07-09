@@ -1,6 +1,6 @@
 # Changelog for SecretManagement.DpapiNG
 
-## v0.4.0 - TBD
+## v0.4.0 - 2024-07-10
 
 + Bump `LiteDB` version to `5.0.21`
 + Support concurrent operations on the same vault file using LiteDB's shared concurrency model
