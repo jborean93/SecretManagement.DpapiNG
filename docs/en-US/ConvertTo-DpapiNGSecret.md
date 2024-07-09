@@ -86,7 +86,7 @@ The same machine can decrypt the encrypted blob.
 
 ### Example 3 - Encrypt a secret for a specific domain group
 ```powershell
-PS C:\> $da = [System.Security.Principal.NTAccount]'DOMAIN\Domain Admins'
+PS C:\> $da = 'DOMAIN\Domain Admins'
 PS C:\> ConvertTo-DpapiNGSecret secret -Sid $da
 ```
 
@@ -95,7 +95,7 @@ Any other member of that group will be able to decrypt that secret.
 
 ### Example 4 - Encrypt a secret using a complex protection descriptor
 ```powershell
-PS C:\> $da = [System.Security.Principal.NTAccount]'DOMAIN\Domain Admins'
+PS C:\> $da = 'DOMAIN\Domain Admins'
 PS C:\> $desc = New-DpapiNGDescriptor |
     Add-DpapiNGDescriptor -CurrentSid |
     Add-DpapiNGDescriptor -Sid $da -Or

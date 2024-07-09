@@ -29,8 +29,7 @@ ConvertTo-DpapiNGSecret MySecret
 ConvertTo-DpapiNGSecret MySecret -CurrentSid
 
 # Encrypts the secret so only Domain Admins on any host can decrypt.
-$da = [System.Security.Principal.NTAccount]'DOMAIN\Domain Admins'
-ConvertTo-DpapiNGSecret MySecret -Sid $da
+ConvertTo-DpapiNGSecret MySecret -Sid 'DOMAIN\Domain Admins'
 ```
 
 The `-CurrentSid` and `-Sid` options can be used on domain joined hosts to protect a secret for that domain user/group specified.
