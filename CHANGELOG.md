@@ -1,10 +1,12 @@
 # Changelog for SecretManagement.DpapiNG
 
+## v0.5.0 - TBD
+
 ## v0.4.0 - 2024-07-10
 
 + Bump `LiteDB` version to `5.0.21`
 + Support concurrent operations on the same vault file using LiteDB's shared concurrency model
-+ Support parsing a `SecurityIdentifier` or `NTAccount` string for the `-Sid` parameter on the `Add-DpapiNGDescriptor` and `ConvertTo-DpapiNGSecret` cmdelts
++ Support parsing a `SecurityIdentifier` or `NTAccount` string for the `-Sid` parameter on the `Add-DpapiNGDescriptor` and `ConvertTo-DpapiNGSecret` cmdlets
 
 ## v0.3.0 - 2023-11-22
 
