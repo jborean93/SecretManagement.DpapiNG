@@ -83,7 +83,7 @@ This secret can be decrypted on any host in the domain running under the same us
 
 ### Example 3 - Adds multiple SIDs
 ```powershell
-PS C:\> $domainAdmins = [System.Security.Principal.NTAccount]'DOMAIN\Domain Admins'
+PS C:\> $domainAdmins = 'DOMAIN\Domain Admins'
 PS C:\> $desc = New-DpapiNGDescriptor |
     Add-DpapiNGDescriptor -CurrentSid |
     Add-DpapiNGDescriptor -Sid $domainAdmins
@@ -91,6 +91,7 @@ PS C:\> ConvertTo-DpapiNGSecret secret -ProtectionDescriptor $desc
 ```
 
 Creates a DPAPI-NG secret that is protected by the current user when a `Domain Admins` member.
+The string value for `-Sid` here is automatically converted to the `System.Security.Principal.NTAccount` object and translated to the `SecurityIdentifier` string.
 
 ## PARAMETERS
 
@@ -201,6 +202,7 @@ Accept wildcard characters: False
 Adds the `SID` descriptor clause to the SecurityIdentifier specified.
 The SecurityIdentifier can be the SID of a domain user or group.
 If a group SID is specified, any user who is a member of that group can decrypt the secret it applies to.
+The value can either by a SecurityIdentifier string in the format `S-1-...`, NTAccount string that will be translated to a `SecurityIdentifier` string, or as a [System.Security.Principal.NTAccount](https://learn.microsoft.com/en-us/dotnet/api/system.security.principal.ntaccount?view=net-8.0) object which will automatically be translated to a SID.
 
 Using a `SID` protection descriptor requires the host to be joined to a domain with a forest level of 2012 or newer.
 

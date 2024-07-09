@@ -4,6 +4,7 @@
 
 + Bump `LiteDB` version to `5.0.21`
 + Support concurrent operations on the same vault file using LiteDB's shared concurrency model
++ Support parsing a `SecurityIdentifier` or `NTAccount` string for the `-Sid` parameter on the `Add-DpapiNGDescriptor` and `ConvertTo-DpapiNGSecret` cmdelts
 
 ## v0.3.0 - 2023-11-22
 

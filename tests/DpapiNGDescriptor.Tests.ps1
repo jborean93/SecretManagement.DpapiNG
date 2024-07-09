@@ -26,6 +26,28 @@ Describe "*-DpapiNGDescriptor" {
         $actual.ToString() | Should -Be "SID=S-1-5-19"
     }
 
+    It "Adds sid from SID type" {
+        $actual = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -Sid ([System.Security.Principal.SecurityIdentifier]::new("S-1-5-18"))
+        $actual.ToString() | Should -Be "SID=S-1-5-18"
+    }
+
+    It "Adds sid from NTAccount type" {
+        $actual = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -Sid ([System.Security.Principal.NTAccount]::new("SYSTEM"))
+        $actual.ToString() | Should -Be "SID=S-1-5-18"
+    }
+
+    It "Adds sid from translated account string" {
+        $actual = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -Sid SYSTEM
+        $actual.ToString() | Should -Be "SID=S-1-5-18"
+    }
+
+    It "Fails to translate unknown account string for SID" {
+        $err = {
+            New-DpapiNGDescriptor | Add-DpapiNGDescriptor -Sid invalid
+        } | Should -Throw -PassThru
+        [string]$err | Should -BeLike "Cannot bind parameter 'Sid'. Cannot convert value `"invalid`" to type `"StringOrAccount`". *"
+    }
+
     It "Adds current sid descriptor" {
         $actual = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -CurrentSid
         $actual.ToString() | Should -Be "SID=$([System.Security.Principal.WindowsIdentity]::GetCurrent().User)"
