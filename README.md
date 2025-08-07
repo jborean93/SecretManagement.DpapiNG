@@ -14,7 +14,7 @@ See [SecretManagement.DpapiNG index](docs/en-US/SecretManagement.DpapiNG.md) for
 
 These cmdlets have the following requirements
 
-* PowerShell v5.1 or newer
+* PowerShell v5.1, or 7.4+
 
 Currently this module only works on Windows, it cannot be used on Linux or macOS.
 

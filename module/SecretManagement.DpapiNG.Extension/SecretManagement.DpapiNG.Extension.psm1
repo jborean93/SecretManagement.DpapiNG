@@ -26,7 +26,7 @@ else {
     # that ALC.
 
     if (-not ('SecretManagement.DpapiNG.LoadContext' -as [type])) {
-        Add-Type -Path ([System.IO.Path]::Combine($PSScriptRoot, '..', 'bin', 'net6.0', "$moduleName.dll"))
+        Add-Type -Path ([System.IO.Path]::Combine($PSScriptRoot, '..', 'bin', 'net8.0', "$moduleName.dll"))
     }
 
     $mainModule = [SecretManagement.DpapiNG.LoadContext]::Initialize()

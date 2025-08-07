@@ -2,6 +2,8 @@
 
 ## v0.5.0 - TBD
 
++ Raised minimum PowerShell 7 versions to 7.4+
+
 ## v0.4.0 - 2024-07-10
 
 + Bump `LiteDB` version to `5.0.21`
