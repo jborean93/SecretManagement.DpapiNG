@@ -53,7 +53,7 @@ public sealed class SetSecretInfoCommand : DpapiNGSecretBase
                 {
                     string msg =
                         "It is not possible to change the ProtectionDescriptor for an existing set. Use " +
-                        "Set-SecretInfo to create a new secret instead.";
+                        "Set-Secret to create a new secret instead.";
                     ErrorRecord err = new(
                         new ArgumentException(msg),
                         "SecretManagement.DpapiNG.SetSecretInfoChangedDesc",

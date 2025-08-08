@@ -103,15 +103,27 @@ public sealed class SetSecretCommand : DpapiNGSecretBase
     private string ProcessMetadata(out string protectionDescriptor)
     {
         Hashtable localMetadata = (Hashtable)Metadata.Clone();
+
+        object? rawDescriptor = null;
         if (localMetadata.ContainsKey("ProtectionDescriptor"))
         {
-            protectionDescriptor = localMetadata["ProtectionDescriptor"]?.ToString() ?? "";
+            rawDescriptor = localMetadata["ProtectionDescriptor"];
+        }
+        else if (AdditionalParameters.ContainsKey("DefaultProtectionDescriptor"))
+        {
+            rawDescriptor = AdditionalParameters["DefaultProtectionDescriptor"];
+        }
+
+        if (rawDescriptor is not null)
+        {
+            protectionDescriptor = LanguagePrimitives.ConvertTo<string>(rawDescriptor);
         }
         else
         {
             protectionDescriptor = "LOCAL=user";
-            localMetadata["ProtectionDescriptor"] = protectionDescriptor;
         }
+
+        localMetadata["ProtectionDescriptor"] = protectionDescriptor;
 
         return PSSerializer.Serialize(localMetadata);
     }

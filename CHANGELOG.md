@@ -3,6 +3,7 @@
 ## v0.5.0 - TBD
 
 + Raised minimum PowerShell 7 versions to 7.4+
++ Added `DefaultProtectionDescriptor` as a `Register-SecretVault -VaultParameters` entry that is used as the default protection descriptor if not specified when creating a new secret.
 
 ## v0.4.0 - 2024-07-10
 
