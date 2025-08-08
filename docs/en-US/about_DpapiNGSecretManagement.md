@@ -37,6 +37,27 @@ Register-SecretVault @vaultParams
 This cmdlet will create a DPAPI-NG vault called `MyVault`, if no `Path` was specified in the `VaultParameters` a default path under `$env:LOCALAPPDATA\SecretManagement.DpapiNG\default.vault` is used as the path.
 If the vault file specified does not exist it will automatically be created when the vault operation is performed.
 It must be a the path to a file and the parent directory must already exist.
+
+It is also possible to set a default protection descriptor using the `DefaultProtectionDescriptor` vault parameter:
+
+```powershell
+$customDescriptor = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -Local machine
+
+$vaultParams = @{
+    Name = 'MyVaultWithCustomDefaultProtectionDescriptor'
+    ModuleName = 'SecretManagement.DpapiNG'
+    VaultParameters = @{
+        Path = 'C:\path\to\vault_file'
+        DefaultProtectionDescriptor = $customDescriptor.ToString()
+    }
+}
+Register-SecretVault @vaultParams
+```
+
+When saving a secret to this vault it will use the `LOCAL=machine` protection descriptor by default for all secrets.
+If a custom protection descriptor is specified in the `-Metadata` then it will overwrite this default.
+The default descriptor used if none is set in the vault registration is `LOCAL=user`.
+
 Once the vault is registered it can referenced by the `-VaultName MyVault` parameter on the other `SecretManagement` cmdlets.
 It is possible to copy the vault file directory to other hosts as long as the secrets it contains is protected in a way that isn't tied to the same host.
 The file format of the vault uses [LiteDB](https://github.com/mbdavid/LiteDB) but this is an implementation detail and can change in the future.

@@ -278,7 +278,7 @@ Describe "SecretManagement" {
         } -ErrorAction SilentlyContinue -ErrorVariable err
 
         $err.Count | Should -Be 1
-        [string]$err | Should -Be "It is not possible to change the ProtectionDescriptor for an existing set. Use Set-SecretInfo to create a new secret instead."
+        [string]$err | Should -Be "It is not possible to change the ProtectionDescriptor for an existing set. Use Set-Secret to create a new secret instead."
 
         $actual = Get-SecretInfo -Name MySecret -Vault $vault
         $actual.Name | Should -Be MySecret
@@ -362,6 +362,30 @@ Describe "SecretManagement" {
         }
         finally {
             Unregister-SecretVault -Name $name
+        }
+    }
+
+    It "Creates vault with default protection descriptor" {
+        $customVault = 'DpapiNGTestCustom'
+        $customVaultPath = "TestDrive:\dpapi-ng-custom.vault"
+        $customDescriptor = New-DpapiNGDescriptor | Add-DpapiNGDescriptor -Local machine
+
+        Register-SecretVault -Name $customVault -ModuleName $CurrentModule.Path -VaultParameters @{
+            Path = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($customVaultPath)
+            DefaultProtectionDescriptor = $customDescriptor.ToString()
+        }
+        try {
+            Set-Secret -Name MySecret -Secret value -Vault $customVault
+            Get-Secret -Name MySecret -Vault $customVault -AsPlainText | Should -Be value
+
+            $actual = Get-SecretInfo -Name MySecret -Vault $customVault
+            $actual.Name | Should -Be MySecret
+            $actual.Metadata.Count | Should -Be 1
+            $actual.Metadata.ProtectionDescriptor | Should -Be "LOCAL=machine"
+        }
+        finally {
+            Unregister-SecretVault -Name $customVault
+            Remove-Item -Path $customVaultPath -Force -ErrorAction SilentlyContinue
         }
     }
 }
