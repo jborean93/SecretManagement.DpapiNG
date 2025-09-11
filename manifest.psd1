@@ -1,6 +1,6 @@
 @{
     DotnetProject = 'SecretManagement.DpapiNG.Module'
-    InvokeBuildVersion = '5.14.14'
+    InvokeBuildVersion = '5.14.18'
     PesterVersion = '5.7.1'
     BuildRequirements = @(
         @{
@@ -9,7 +9,7 @@
         }
         @{
             ModuleName = 'OpenAuthenticode'
-            RequiredVersion = '0.6.1'
+            RequiredVersion = '0.6.2'
         }
         @{
             ModuleName = 'platyPS'
