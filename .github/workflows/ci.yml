@@ -41,7 +41,7 @@ jobs:
       env:
         AZURE_TS_NAME: ${{ env.BUILD_CONFIGURATION == 'Release' && secrets.AZURE_TS_NAME || '' }}
         AZURE_TS_PROFILE: ${{ env.BUILD_CONFIGURATION == 'Release' && secrets.AZURE_TS_PROFILE || '' }}
-        AZURE_TS_ENDPOINT: ${{ env.BUILD_CONFIGURATION == 'Release' && secrets.AZURE_TS_ENDPOINT || '' }}s
+        AZURE_TS_ENDPOINT: ${{ env.BUILD_CONFIGURATION == 'Release' && secrets.AZURE_TS_ENDPOINT || '' }}
 
     - name: Capture PowerShell Module
       uses: actions/upload-artifact@v4

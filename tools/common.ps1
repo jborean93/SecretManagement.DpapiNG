@@ -136,7 +136,7 @@ class Manifest {
         foreach ($framework in $availableFrameworks) {
             foreach ($actualFramework in $this.TargetFrameworks) {
                 if ($actualFramework.StartsWith($framework)) {
-                    $this.TestFramework = $framework
+                    $this.TestFramework = $actualFramework
                     break
                 }
             }
@@ -148,7 +148,7 @@ class Manifest {
     }
 }
 
-Function Assert-ModuleFast {
+function Assert-ModuleFast {
     [CmdletBinding()]
     param(
         [Parameter()]
@@ -164,7 +164,7 @@ Function Assert-ModuleFast {
     & ([scriptblock]::Create((Invoke-WebRequest -Uri 'bit.ly/modulefast'))) -Release $Version
 }
 
-Function Assert-PowerShell {
+function Assert-PowerShell {
     [OutputType([string])]
     [CmdletBinding()]
     param(
@@ -238,7 +238,7 @@ Function Assert-PowerShell {
     $pwshExe = [Path]::Combine($targetFolder, "pwsh$nativeExt")
 
     if (Test-Path -LiteralPath $pwshExe) {
-        return
+        return $pwshExe
     }
 
     if ($IsWindows) {
@@ -349,7 +349,7 @@ function Expand-Nupkg {
     }
 }
 
-Function Install-BuildDependencies {
+function Install-BuildDependencies {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory, ValueFromPipeline)]
@@ -376,7 +376,7 @@ Function Install-BuildDependencies {
             return
         }
 
-        Assert-ModuleFast -Version v0.2.0
+        Assert-ModuleFast -Version v0.6.0
 
         $installParams = @{
             ModulesToInstall = $modules
@@ -396,7 +396,7 @@ Function Install-BuildDependencies {
     }
 }
 
-Function Format-CoverageInfo {
+function Format-CoverageInfo {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
