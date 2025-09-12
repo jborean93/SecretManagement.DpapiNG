@@ -1,6 +1,6 @@
 # Changelog for SecretManagement.DpapiNG
 
-## v0.5.0 - TBD
+## v0.5.0 - 2025-09-12
 
 + Raised minimum PowerShell 7 versions to 7.4+
 + Added `DefaultProtectionDescriptor` as a `Register-SecretVault -VaultParameters` entry that is used as the default protection descriptor if not specified when creating a new secret.
